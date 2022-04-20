@@ -1,8 +1,8 @@
 """Main entry point for the application."""
 import pygame
 
-from checker.board import Board
-from checker.constants import WIDTH, HEIGHT
+from checker import Board
+from checker import WIDTH, HEIGHT
 
 
 FPS = 60
