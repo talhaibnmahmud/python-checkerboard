@@ -51,6 +51,11 @@ class Piece:
         self.x = self.col * SQUARE_SIZE + (SQUARE_SIZE // 2)
         self.y = self.row * SQUARE_SIZE + (SQUARE_SIZE // 2)
 
+    def move(self, row: int, col: int):
+        self.row = row
+        self.col = col
+        self.calculate_positions()
+
     def draw(self, win: pygame.Surface):
         pygame.draw.circle(win, self.color, (self.x, self.y), 20)
 
