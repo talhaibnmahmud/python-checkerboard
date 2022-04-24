@@ -2,7 +2,12 @@ import pygame
 
 
 _RgbaOutput = tuple[int, int, int, int]
-ColorType = pygame.Color | int | str | tuple[int, int, int] | list[int] | _RgbaOutput
+ColorType = pygame.Color \
+    | int \
+    | str \
+    | tuple[int, int, int] \
+    | list[int] \
+    | _RgbaOutput
 
 WIDTH, HEIGHT = 720, 720
 ROW, COL = 8, 8

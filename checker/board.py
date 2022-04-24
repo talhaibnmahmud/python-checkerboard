@@ -1,6 +1,6 @@
 import pygame
 
-from .constants import ROW, COL, SQUARE_SIZE
+from .constants import COL, ROW, SQUARE_SIZE
 from .piece import Piece
 
 
