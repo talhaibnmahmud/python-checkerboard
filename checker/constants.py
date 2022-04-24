@@ -19,3 +19,7 @@ GREEN = pygame.Color(0, 255, 0)
 YELLOW = pygame.Color(255, 255, 0)
 BLACK = pygame.Color(0, 0, 0)
 WHITE = pygame.Color(255, 255, 255)
+
+CROWN = pygame.transform.scale(
+    pygame.image.load('assets/crown.png'), (SQUARE_SIZE // 3, SQUARE_SIZE // 3)
+)

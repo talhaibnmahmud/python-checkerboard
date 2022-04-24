@@ -1,6 +1,6 @@
 import pygame
 
-from .constants import SQUARE_SIZE, ColorType
+from .constants import CROWN, SQUARE_SIZE, ColorType
 
 
 class Piece:
@@ -53,3 +53,9 @@ class Piece:
 
     def draw(self, win: pygame.Surface):
         pygame.draw.circle(win, self.color, (self.x, self.y), 20)
+
+        if self.king:
+            win.blit(
+                CROWN,
+                (self.x - CROWN.get_width() // 2, self.y - CROWN.get_height() // 2)
+            )
