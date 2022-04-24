@@ -15,10 +15,10 @@ class Piece:
         self.calculate_positions()
 
     def __str__(self) -> str:
-        return str(self.color) + " " + str(self.row) + " " + str(self.col) + " " + str(self.king)
+        return f"{str(self.color)} -> ({str(self.row)}, {str(self.col)}) -> {str(self.king)}"
 
     def __repr__(self) -> str:
-        return str(self.color) + " " + str(self.row) + " " + str(self.col) + " " + str(self.king)
+        return f"{str(self.color)} -> ({str(self.row)}, {str(self.col)}) -> {str(self.king)}"
 
     def get_color(self) -> ColorType:
         return self.color
@@ -31,9 +31,6 @@ class Piece:
 
     def get_king(self):
         return self.king
-
-    # def set_king(self, king) -> None:
-    #     self.king = king
 
     def make_king(self):
         self.king = True
