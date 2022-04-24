@@ -1,7 +1,7 @@
 """Main entry point for the application."""
 import pygame
 
-from checker import HEIGHT, WIDTH, SQUARE_SIZE,  Board
+from checker import HEIGHT, WIDTH, SQUARE_SIZE, Game
 
 
 FPS = 60
@@ -22,7 +22,7 @@ def main():
     """ Main Function"""
     run = True
     clock = pygame.time.Clock()
-    board = Board()
+    game = Game(WIN)
 
     while run:
         clock.tick(FPS)
@@ -31,11 +31,13 @@ def main():
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 row, col = get_row_col_from_mouse_pos(event.pos)
-                piece = board.get_piece(row, col)
-                print(piece)
 
-        board.draw(WIN)
-        pygame.display.update()
+                if pygame.mouse.get_pressed()[2]:
+                    game.select_piece(row, col)
+                if pygame.mouse.get_pressed()[0]:
+                    game.move_piece(row, col)
+
+        game.play()
 
     pygame.quit()
 
