@@ -10,6 +10,7 @@ class Board:
         self.black_left = self.white_left = 12
         self.black_kings = self.white_kings = 0
         self.valid_moves: list[tuple[int, int]] = []
+        self.marked_for_remove = []
 
         self.create_board()
 
@@ -199,6 +200,10 @@ class Board:
                 self.white_kings += 1 if piece.get_king() else 0
             else:
                 self.black_kings += 1 if piece.get_king() else 0
+
+    def remove_piece(self, piece: Piece):
+        row, col = piece.get_row(), piece.get_col()
+        self.board[row][col] = None
 
     def check_winner(self):
         if self.black_left == 0:
