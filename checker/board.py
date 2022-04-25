@@ -89,18 +89,85 @@ class Board:
         if col == 0:
             if self._check_adjacent(row + direction, col + 1) is not None:
                 valid.append((row + direction, col + 1))
+            else:
+                cell = self.board[row + direction][col + 1]
+                if cell is not None and cell.color != piece.color:
+                    if self._check_adjacent(row + direction * 2, col + 2) is not None:
+                        valid.append((row + direction * 2, col + 2))
         elif col == 7:
             if self._check_adjacent(row + direction, col - 1) is not None:
                 valid.append((row + direction, col - 1))
+            else:
+                cell = self.board[row + direction][col - 1]
+                if cell is not None and cell.color != piece.color:
+                    if self._check_adjacent(row + direction * 2, col - 2) is not None:
+                        valid.append((row + direction * 2, col - 2))
         else:
             if self._check_adjacent(row + direction, col + 1) is not None:
                 valid.append((row + direction, col + 1))
+            else:
+                cell = self.board[row + direction][col + 1]
+                if cell is not None and cell.color != piece.color:
+                    if self._check_adjacent(row + direction * 2, col + 2) is not None:
+                        valid.append((row + direction * 2, col + 2))
             if self._check_adjacent(row + direction, col - 1) is not None:
                 valid.append((row + direction, col - 1))
+            else:
+                cell = self.board[row + direction][col - 1]
+                if cell is not None and cell.color != piece.color:
+                    if self._check_adjacent(row + direction * 2, col - 2) is not None:
+                        valid.append((row + direction * 2, col - 2))
 
         return valid
 
     def _check_adjacent(self, row: int, col: int):
+        if not -1 < row < 8 or not -1 < col < 8:
+            return None
+
+        if self.board[row][col] is None:
+            return row, col
+        return None
+
+    def jump(self, row: int, col: int, color: ColorType, direction: int):
+        valid: list[tuple[int, int]] = []
+
+        if (direction == 1 and row == 6) or (direction == -1 and row == 1):
+            return valid
+
+        if -1 < col < 2:
+            cell = self.board[row + direction * 2][col + 2]
+            if cell is None:
+                valid.append((row + direction * 2, col + 2))
+                r_jumps = self.jump(row + direction * 2,
+                                    col + 2, color, direction)
+                valid.extend(r_jumps)
+        elif 5 < col < 8:
+            cell = self.board[row + direction * 2][col - 2]
+            if cell is None:
+                valid.append((row + direction * 2, col - 2))
+                r_jumps = self.jump(row + direction * 2,
+                                    col - 2, color, direction)
+                valid.extend(r_jumps)
+        else:
+            cell = self.board[row + direction * 2][col + 2]
+            if cell is None:
+                valid.append((row + direction * 2, col + 2))
+                r_jumps = self.jump(row + direction * 2,
+                                    col + 2, color, direction)
+                valid.extend(r_jumps)
+            cell = self.board[row + direction * 2][col - 2]
+            if cell is None:
+                valid.append((row + direction * 2, col - 2))
+                r_jumps = self.jump(row + direction * 2,
+                                    col - 2, color, direction)
+                valid.extend(r_jumps)
+
+        return valid
+
+    def _check_jump(self, row: int, col: int):
+        if not -1 < row < 8 or not -1 < col < 8:
+            return None
+
         if self.board[row][col] is None:
             return row, col
         return None
