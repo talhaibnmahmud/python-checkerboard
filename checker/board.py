@@ -72,18 +72,18 @@ class Board:
             direction = 1
             moves = self.adjacent_move(piece, direction)
             valid_moves.extend(moves)
+
+            if piece.king:
+                top = self.adjacent_move(piece, -direction)
+                valid_moves.extend(top)
         else:
             direction = -1
             moves = self.adjacent_move(piece, direction)
             valid_moves.extend(moves)
 
-        if piece.get_king() and piece.get_color() == "white":
-            top = self.adjacent_move(piece, direction=-1)
-
-            valid_moves.extend(top)
-        if piece.get_king() and piece.get_color() == "black":
-            bottom = self.adjacent_move(piece, direction=1)
-            valid_moves.extend(bottom)
+            if piece.king:
+                bottom = self.adjacent_move(piece, -direction)
+                valid_moves.extend(bottom)
 
         return valid_moves
 
@@ -94,42 +94,19 @@ class Board:
         if (direction == 1 and row == 7) or (direction == -1 and row == 0):
             return valid
 
+        x = row + direction
         if col == 0:
-            x, y = row + direction, col + 1
-            if self._check_adjacent(x, y) is not None:
-                valid.append((x, y))
-            else:
-                cell = self.board[row + direction][col + 1]
-                if cell is not None and cell.color != piece.color:
-                    jumps = self.jump(row, col, piece.color, direction)
-                    valid.extend(jumps)
+            y = col + 1
+            self._find_moves(piece, row, col, x, y, direction, valid)
         elif col == 7:
-            x, y = row + direction, col - 1
-            if self._check_adjacent(x, y) is not None:
-                valid.append((x, y))
-            else:
-                cell = self.board[row + direction][col - 1]
-                if cell is not None and cell.color != piece.color:
-                    jumps = self.jump(row, col, piece.color, direction)
-                    valid.extend(jumps)
+            y = col - 1
+            self._find_moves(piece, row, col, x, y, direction, valid)
         else:
-            x, y = row + direction, col + 1
-            if self._check_adjacent(x, y) is not None:
-                valid.append((x, y))
-            else:
-                cell = self.board[row + direction][col + 1]
-                if cell is not None and cell.color != piece.color:
-                    jumps = self.jump(row, col, piece.color, direction)
-                    valid.extend(jumps)
+            y = col + 1
+            self._find_moves(piece, row, col, x, y, direction, valid)
 
-            x, y = row + direction, col - 1
-            if self._check_adjacent(x, y) is not None:
-                valid.append((x, y))
-            else:
-                cell = self.board[row + direction][col - 1]
-                if cell is not None and cell.color != piece.color:
-                    jumps = self.jump(row, col, piece.color, direction)
-                    valid.extend(jumps)
+            y = col - 1
+            self._find_moves(piece, row, col, x, y, direction, valid)
 
         return valid
 
@@ -140,6 +117,24 @@ class Board:
         if self.board[row][col] is None:
             return row, col
         return None
+
+    def _find_moves(
+        self,
+        piece: Piece,
+        row: int,
+        col: int,
+        x: int,
+        y: int,
+        direction: int,
+        valid: list[Coordinate]
+    ):
+        if self._check_adjacent(x, y) is not None:
+            valid.append((x, y))
+        else:
+            cell = self.board[x][y]
+            if cell is not None and cell.color != piece.color:
+                jumps = self.jump(row, col, piece.color, direction)
+                valid.extend(jumps)
 
     def jump(self, row: int, col: int, color: ColorType, direction: int):
         valid: list[Coordinate] = []
