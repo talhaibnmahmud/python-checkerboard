@@ -1,54 +1,38 @@
-""" Game Class"""
+""" Game Class """
 import pygame
 
 from .board import Board
 
 
 class Game:
-    """
-    Game class
-    """
+    """ Game class """
 
     def __init__(self, window: pygame.Surface):
-        """
-        Initialize the game
-        """
+        """ Initialize the game """
+
         self.window = window
         self.player1 = "white"
         self.player2 = "black"
+
         self._reset()
 
     def play(self):
-        """
-        Play the game
-        """
-        # while not self.board.is_full() and not self.winner:
-        #     self.board.draw(self.window)
-        #     self.current_player.play(self.board)
-        #     self.switch_player()
-        #     pygame.display.update()
+        """ Play the game """
 
         self.board.draw(self.window)
         pygame.display.update()
 
-        # if self.winner:
-        #     print(self.winner, "wins!")
-        # else:
-        #     print("It's a draw!")
-
     def switch_player(self):
-        """
-        Switch the current player
-        """
+        """ Switch the current player """
+
         if self.current_player == self.player1:
             self.current_player = self.player2
         else:
             self.current_player = self.player1
 
     def select_piece(self, row: int, col: int):
-        """
-        Select a piece
-        """
+        """ Select a piece """
+
         piece = self.board.get_piece(row, col)
         if piece is None:
             return
@@ -56,7 +40,6 @@ class Game:
         if piece.get_color() == self.current_player:
             self.selected_piece = piece
             self.valid_moves = self.board.get_valid_moves(piece)
-            print(self.valid_moves)
 
             self.board.set_valid_moves(self.valid_moves)
             self.refresh()
@@ -67,9 +50,8 @@ class Game:
             self.refresh()
 
     def move_piece(self, row: int, col: int):
-        """
-        Move a piece
-        """
+        """ Move a piece """
+
         if self.selected_piece is None:
             return
 
@@ -89,12 +71,14 @@ class Game:
             self.refresh()
 
     def refresh(self):
-        """ Refresh the game """
+        """ Refresh the game window """
+
         self.board.draw(self.window)
         pygame.display.update()
 
     def reset(self):
         """ Reset the game """
+
         self._reset()
 
     def _reset(self):

@@ -12,6 +12,7 @@ class Piece:
 
         self.x: int = 0
         self.y: int = 0
+
         self.calculate_positions()
 
     def __str__(self) -> str:

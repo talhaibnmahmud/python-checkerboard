@@ -11,6 +11,8 @@ pygame.display.set_caption("Checkers")
 
 
 def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> Coordinate:
+    """ Get the row and column from the mouse position. """
+
     x, y = mouse_pos
     row = int(y // SQUARE_SIZE)
     col = int(x // SQUARE_SIZE)
@@ -20,6 +22,7 @@ def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> Coordinate:
 
 def main():
     """ Main Function"""
+
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
