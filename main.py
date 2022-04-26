@@ -1,7 +1,7 @@
 """Main entry point for the application."""
 import pygame
 
-from checker import HEIGHT, WIDTH, SQUARE_SIZE, Game
+from checker import HEIGHT, SQUARE_SIZE, WIDTH, Coordinate, Game
 
 
 FPS = 60
@@ -10,7 +10,7 @@ WIN: pygame.Surface = pygame.display.set_mode(size=SIZE)  # type: ignore
 pygame.display.set_caption("Checkers")
 
 
-def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> tuple[int, int]:
+def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> Coordinate:
     x, y = mouse_pos
     row = int(y // SQUARE_SIZE)
     col = int(x // SQUARE_SIZE)

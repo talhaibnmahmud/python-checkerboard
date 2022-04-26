@@ -1,6 +1,6 @@
 import pygame
 
-from .constants import COL, ROW, SQUARE_SIZE, ColorType
+from .constants import COL, ROW, SQUARE_SIZE, ColorType, Coordinate
 from .piece import Piece
 
 
@@ -9,12 +9,12 @@ class Board:
         self.selected_piece = None
         self.black_left = self.white_left = 12
         self.black_kings = self.white_kings = 0
-        self.valid_moves: list[tuple[int, int]] = []
-        self.marked_for_remove = []
+        self.valid_moves: list[Coordinate] = []
+        self.marked_for_remove: dict[Coordinate, list[Coordinate]] = {}
 
         self.create_board()
 
-    def set_valid_moves(self, valid_moves: list[tuple[int, int]]):
+    def set_valid_moves(self, valid_moves: list[Coordinate]):
         self.valid_moves = valid_moves
 
     def draw_squares(self, win: pygame.Surface):
@@ -30,7 +30,7 @@ class Board:
     def _draw_circle_alpha(
         self,
         win: pygame.Surface,
-        center: tuple[int, int],
+        center: Coordinate,
         radius: int,
         color: tuple[int, int, int, int]
     ):
@@ -40,7 +40,7 @@ class Board:
         pygame.draw.circle(shape_surface, color, (radius, radius), radius)
         win.blit(shape_surface, target_rect)
 
-    def draw_valid_moves(self, win: pygame.Surface, valid_moves: list[tuple[int, int]]):
+    def draw_valid_moves(self, win: pygame.Surface, valid_moves: list[Coordinate]):
         for row, col in valid_moves:
             x = col * SQUARE_SIZE + (SQUARE_SIZE // 2)
             y = row * SQUARE_SIZE + (SQUARE_SIZE // 2)
@@ -65,7 +65,8 @@ class Board:
         return self.board[row][col]
 
     def get_valid_moves(self, piece: Piece):
-        valid_moves: list[tuple[int, int]] = []
+        valid_moves: list[Coordinate] = []
+        self.marked_for_remove = {}
 
         if piece.get_color() == "white":
             direction = 1
@@ -87,38 +88,43 @@ class Board:
         return valid_moves
 
     def adjacent_move(self, piece: Piece, direction: int):
-        valid: list[tuple[int, int]] = []
+        valid: list[Coordinate] = []
         row, col = piece.get_row(), piece.get_col()
 
         if (direction == 1 and row == 7) or (direction == -1 and row == 0):
             return valid
 
         if col == 0:
-            if self._check_adjacent(row + direction, col + 1) is not None:
-                valid.append((row + direction, col + 1))
+            x, y = row + direction, col + 1
+            if self._check_adjacent(x, y) is not None:
+                valid.append((x, y))
             else:
                 cell = self.board[row + direction][col + 1]
                 if cell is not None and cell.color != piece.color:
                     jumps = self.jump(row, col, piece.color, direction)
                     valid.extend(jumps)
         elif col == 7:
-            if self._check_adjacent(row + direction, col - 1) is not None:
-                valid.append((row + direction, col - 1))
+            x, y = row + direction, col - 1
+            if self._check_adjacent(x, y) is not None:
+                valid.append((x, y))
             else:
                 cell = self.board[row + direction][col - 1]
                 if cell is not None and cell.color != piece.color:
                     jumps = self.jump(row, col, piece.color, direction)
                     valid.extend(jumps)
         else:
-            if self._check_adjacent(row + direction, col + 1) is not None:
-                valid.append((row + direction, col + 1))
+            x, y = row + direction, col + 1
+            if self._check_adjacent(x, y) is not None:
+                valid.append((x, y))
             else:
                 cell = self.board[row + direction][col + 1]
                 if cell is not None and cell.color != piece.color:
                     jumps = self.jump(row, col, piece.color, direction)
                     valid.extend(jumps)
-            if self._check_adjacent(row + direction, col - 1) is not None:
-                valid.append((row + direction, col - 1))
+
+            x, y = row + direction, col - 1
+            if self._check_adjacent(x, y) is not None:
+                valid.append((x, y))
             else:
                 cell = self.board[row + direction][col - 1]
                 if cell is not None and cell.color != piece.color:
@@ -136,7 +142,7 @@ class Board:
         return None
 
     def jump(self, row: int, col: int, color: ColorType, direction: int):
-        valid: list[tuple[int, int]] = []
+        valid: list[Coordinate] = []
 
         if (direction == 1 and row == 6) or (direction == -1 and row == 1):
             return valid
@@ -147,8 +153,23 @@ class Board:
                 cell = self.board[row + direction * 2][col + 2]
                 if cell is None:
                     valid.append((row + direction * 2, col + 2))
-                    r_jumps = self.jump(row + direction * 2,
-                                        col + 2, color, direction)
+
+                    if (row, col) in self.marked_for_remove:
+                        marked = self.marked_for_remove[(row, col)]
+                        marked.append((row + direction, col + 1))
+                        self.marked_for_remove[(
+                            row + direction * 2, col + 2)] = marked
+                    else:
+                        self.marked_for_remove[(
+                            row + direction * 2, col + 2)] = [(row + direction, col + 1)]
+
+                    r_jumps = self.jump(
+                        row + direction * 2,
+                        col + 2,
+                        color,
+                        direction
+                    )
+
                     valid.extend(r_jumps)
         elif 5 < col < 8:
             adjacent_cell = self.board[row + direction][col - 1]
@@ -156,8 +177,23 @@ class Board:
                 cell = self.board[row + direction * 2][col - 2]
                 if cell is None:
                     valid.append((row + direction * 2, col - 2))
-                    r_jumps = self.jump(row + direction * 2,
-                                        col - 2, color, direction)
+
+                    if (row, col) in self.marked_for_remove:
+                        marked = self.marked_for_remove[(row, col)]
+                        marked.append((row + direction, col - 1))
+                        self.marked_for_remove[(
+                            row + direction * 2, col - 2)] = marked
+                    else:
+                        self.marked_for_remove[(
+                            row + direction * 2, col - 2)] = [(row + direction, col - 1)]
+
+                    r_jumps = self.jump(
+                        row + direction * 2,
+                        col - 2,
+                        color,
+                        direction
+                    )
+
                     valid.extend(r_jumps)
         else:
             adjacent_cell = self.board[row + direction][col + 1]
@@ -165,8 +201,23 @@ class Board:
                 cell = self.board[row + direction * 2][col + 2]
                 if cell is None:
                     valid.append((row + direction * 2, col + 2))
-                    r_jumps = self.jump(row + direction * 2,
-                                        col + 2, color, direction)
+
+                    if (row, col) in self.marked_for_remove:
+                        marked = self.marked_for_remove[(row, col)]
+                        marked.append((row + direction, col + 1))
+                        self.marked_for_remove[(
+                            row + direction * 2, col + 2)] = marked
+                    else:
+                        self.marked_for_remove[(
+                            row + direction * 2, col + 2)] = [(row + direction, col + 1)]
+
+                    r_jumps = self.jump(
+                        row + direction * 2,
+                        col + 2,
+                        color,
+                        direction
+                    )
+
                     valid.extend(r_jumps)
 
             adjacent_cell = self.board[row + direction][col - 1]
@@ -174,8 +225,23 @@ class Board:
                 cell = self.board[row + direction * 2][col - 2]
                 if cell is None:
                     valid.append((row + direction * 2, col - 2))
-                    r_jumps = self.jump(row + direction * 2,
-                                        col - 2, color, direction)
+
+                    if (row, col) in self.marked_for_remove:
+                        marked = self.marked_for_remove[(row, col)]
+                        marked.append((row + direction, col - 1))
+                        self.marked_for_remove[(
+                            row + direction * 2, col - 2)] = marked
+                    else:
+                        self.marked_for_remove[(
+                            row + direction * 2, col - 2)] = [(row + direction, col - 1)]
+
+                    r_jumps = self.jump(
+                        row + direction * 2,
+                        col - 2,
+                        color,
+                        direction
+                    )
+
                     valid.extend(r_jumps)
 
         return valid
@@ -192,6 +258,10 @@ class Board:
         self.board[row][col] = piece
 
         piece.move(row, col)
+
+        if (row, col) in self.marked_for_remove:
+            for item in self.marked_for_remove[(row, col)]:
+                self.board[item[0]][item[1]] = None
 
         if (row == 0 or row == ROW - 1) and not piece.get_king():
             piece.make_king()

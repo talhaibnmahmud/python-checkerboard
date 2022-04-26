@@ -9,6 +9,8 @@ ColorType = pygame.Color \
     | list[int] \
     | _RgbaOutput
 
+Coordinate = tuple[int, int]
+
 WIDTH, HEIGHT = 720, 720
 ROW, COL = 8, 8
 SQUARE_SIZE = WIDTH // ROW
