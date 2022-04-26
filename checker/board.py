@@ -143,108 +143,48 @@ class Board:
             return valid
 
         if -1 < col < 2:
-            adjacent_cell = self.board[row + direction][col + 1]
-            if adjacent_cell is not None and adjacent_cell.color != color:
-                cell = self.board[row + direction * 2][col + 2]
-                if cell is None:
-                    valid.append((row + direction * 2, col + 2))
-
-                    if (row, col) in self.marked_for_remove:
-                        marked = self.marked_for_remove[(row, col)]
-                        marked.append((row + direction, col + 1))
-                        self.marked_for_remove[(
-                            row + direction * 2, col + 2)] = marked
-                    else:
-                        self.marked_for_remove[(
-                            row + direction * 2, col + 2)] = [(row + direction, col + 1)]
-
-                    r_jumps = self.jump(
-                        row + direction * 2,
-                        col + 2,
-                        color,
-                        direction
-                    )
-
-                    valid.extend(r_jumps)
+            y_direction = 1
+            self._find_jumps(row, col, color, direction, y_direction, valid)
         elif 5 < col < 8:
-            adjacent_cell = self.board[row + direction][col - 1]
-            if adjacent_cell is not None and adjacent_cell.color != color:
-                cell = self.board[row + direction * 2][col - 2]
-                if cell is None:
-                    valid.append((row + direction * 2, col - 2))
-
-                    if (row, col) in self.marked_for_remove:
-                        marked = self.marked_for_remove[(row, col)]
-                        marked.append((row + direction, col - 1))
-                        self.marked_for_remove[(
-                            row + direction * 2, col - 2)] = marked
-                    else:
-                        self.marked_for_remove[(
-                            row + direction * 2, col - 2)] = [(row + direction, col - 1)]
-
-                    r_jumps = self.jump(
-                        row + direction * 2,
-                        col - 2,
-                        color,
-                        direction
-                    )
-
-                    valid.extend(r_jumps)
+            y_direction = -1
+            self._find_jumps(row, col, color, direction, y_direction, valid)
         else:
-            adjacent_cell = self.board[row + direction][col + 1]
-            if adjacent_cell is not None and adjacent_cell.color != color:
-                cell = self.board[row + direction * 2][col + 2]
-                if cell is None:
-                    valid.append((row + direction * 2, col + 2))
+            y_direction = 1
+            self._find_jumps(row, col, color, direction, y_direction, valid)
 
-                    if (row, col) in self.marked_for_remove:
-                        marked = self.marked_for_remove[(row, col)]
-                        marked.append((row + direction, col + 1))
-                        self.marked_for_remove[(
-                            row + direction * 2, col + 2)] = marked
-                    else:
-                        self.marked_for_remove[(
-                            row + direction * 2, col + 2)] = [(row + direction, col + 1)]
-
-                    r_jumps = self.jump(
-                        row + direction * 2,
-                        col + 2,
-                        color,
-                        direction
-                    )
-
-                    valid.extend(r_jumps)
-
-            adjacent_cell = self.board[row + direction][col - 1]
-            if adjacent_cell is not None and adjacent_cell.color != color:
-                cell = self.board[row + direction * 2][col - 2]
-                if cell is None:
-                    valid.append((row + direction * 2, col - 2))
-
-                    if (row, col) in self.marked_for_remove:
-                        marked = self.marked_for_remove[(row, col)]
-                        marked.append((row + direction, col - 1))
-                        self.marked_for_remove[(
-                            row + direction * 2, col - 2)] = marked
-                    else:
-                        self.marked_for_remove[(
-                            row + direction * 2, col - 2)] = [(row + direction, col - 1)]
-
-                    r_jumps = self.jump(
-                        row + direction * 2,
-                        col - 2,
-                        color,
-                        direction
-                    )
-
-                    valid.extend(r_jumps)
+            y_direction = -1
+            self._find_jumps(row, col, color, direction, y_direction, valid)
 
         return valid
 
-    def _check_empty_adjacent(self, row: int, col: int):
-        if self.board[row][col] is None:
-            return True
-        return False
+    def _find_jumps(
+        self,
+        row: int,
+        col: int,
+        color: ColorType,
+        x_ditection: int,
+        y_direction: int,
+        valid: list[Coordinate]
+    ):
+        ax, ay = row + x_ditection, col + y_direction
+        jx, jy = row + x_ditection * 2, col + y_direction * 2
+
+        adjacent_cell = self.board[ax][ay]
+        if adjacent_cell is not None and adjacent_cell.color != color:
+            cell = self.board[jx][jy]
+            if cell is None:
+                valid.append((jx, jy))
+
+                if (row, col) in self.marked_for_remove:
+                    marked = self.marked_for_remove[(row, col)]
+                    marked.append((ax, ay))
+                    self.marked_for_remove[(jx, jy)] = marked
+                else:
+                    self.marked_for_remove[(jx, jy)] = [(ax, ay)]
+
+                r_jumps = self.jump(jx, jy, color, x_ditection)
+
+                valid.extend(r_jumps)
 
     def move_piece(self, piece: Piece, row: int, col: int):
         self.board[piece.get_row()][piece.get_col()] = self.board[row][col]
