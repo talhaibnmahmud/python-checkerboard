@@ -139,7 +139,7 @@ class Board:
     def jump(self, row: int, col: int, color: ColorType, direction: int):
         valid: list[Coordinate] = []
 
-        if (direction == 1 and row == 6) or (direction == -1 and row == 1):
+        if (direction == 1 and row > 5) or (direction == -1 and row < 2):
             return valid
 
         if -1 < col < 2:
