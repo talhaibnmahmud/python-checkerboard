@@ -9,7 +9,8 @@ from .constants import SQUARE_SIZE, ColorType
 @dataclass
 class Piece:
     CROWN: ClassVar = transform.scale(
-        image.load('assets/crown.png'), (SQUARE_SIZE // 3, SQUARE_SIZE // 3)
+        image.load('assets/images/crown.png'),
+        (SQUARE_SIZE // 3, SQUARE_SIZE // 3)
     )
 
     row: int
