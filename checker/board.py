@@ -1,6 +1,6 @@
 import pygame
 
-from .constants import COL, ROW, SQUARE_SIZE, ColorType, Coordinate
+from .constants import ColorType, Colors, Coordinate, Dimensions, Direction
 from .piece import Piece
 
 
@@ -18,13 +18,21 @@ class Board:
         self.valid_moves = valid_moves
 
     def draw_squares(self, win: pygame.Surface):
-        win.fill('#808000')
-        for row in range(ROW):
-            for col in range(row % 2, COL, 2):
+        win.fill(Colors.LIGHT)
+
+        width = Dimensions.SQUARE_SIZE
+        height = Dimensions.SQUARE_SIZE
+        for row in range(Dimensions.ROW):
+            for col in range(row % 2, Dimensions.COL, 2):
                 pygame.draw.rect(
                     win,
-                    (218, 160, 109),
-                    (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
+                    Colors.DARK,
+                    (
+                        col * Dimensions.SQUARE_SIZE,
+                        row * Dimensions.SQUARE_SIZE,
+                        width,
+                        height
+                    )
                 )
 
     def _draw_circle_alpha(
@@ -41,16 +49,18 @@ class Board:
         win.blit(shape_surface, target_rect)
 
     def draw_valid_moves(self, win: pygame.Surface, valid_moves: list[Coordinate]):
+        half_square = Dimensions.SQUARE_SIZE // 2
+
         for row, col in valid_moves:
-            x = col * SQUARE_SIZE + (SQUARE_SIZE // 2)
-            y = row * SQUARE_SIZE + (SQUARE_SIZE // 2)
+            x = col * Dimensions.SQUARE_SIZE + half_square
+            y = row * Dimensions.SQUARE_SIZE + half_square
             pygame.draw.circle(win, (0, 200, 0), (x, y), 15)
 
     def create_board(self):
         self.board: list[list[Piece | None]] = []
-        for row in range(ROW):
+        for row in range(Dimensions.ROW):
             self.board.append([])
-            for col in range(COL):
+            for col in range(Dimensions.COL):
                 if col % 2 == ((row + 1) % 2):
                     if row < 3:
                         self.board[row].append(Piece(row, col, "white"))
@@ -69,7 +79,7 @@ class Board:
         self.marked_for_remove = {}
 
         if piece.color == "white":
-            direction = 1
+            direction = Direction.DOWN
             moves = self.adjacent_move(piece, direction)
             valid_moves.extend(moves)
 
@@ -77,7 +87,7 @@ class Board:
                 top = self.adjacent_move(piece, -direction)
                 valid_moves.extend(top)
         else:
-            direction = -1
+            direction = Direction.UP
             moves = self.adjacent_move(piece, direction)
             valid_moves.extend(moves)
 
@@ -91,21 +101,21 @@ class Board:
         valid: list[Coordinate] = []
         row, col = piece.row, piece.col
 
-        if (direction == 1 and row == 7) or (direction == -1 and row == 0):
+        if (direction == Direction.DOWN and row == 7) or (direction == Direction.UP and row == 0):
             return valid
 
         x = row + direction
         if col == 0:
-            y = col + 1
+            y = col + Direction.RIGHT
             self._find_moves(piece, row, col, x, y, direction, valid)
         elif col == 7:
-            y = col - 1
+            y = col + Direction.LEFT
             self._find_moves(piece, row, col, x, y, direction, valid)
         else:
-            y = col + 1
+            y = col + Direction.RIGHT
             self._find_moves(piece, row, col, x, y, direction, valid)
 
-            y = col - 1
+            y = col + Direction.LEFT
             self._find_moves(piece, row, col, x, y, direction, valid)
 
         return valid
@@ -139,20 +149,20 @@ class Board:
     def jump(self, row: int, col: int, color: ColorType, direction: int):
         valid: list[Coordinate] = []
 
-        if (direction == 1 and row > 5) or (direction == -1 and row < 2):
+        if (direction == Direction.DOWN and row > 5) or (direction == Direction.UP and row < 2):
             return valid
 
         if -1 < col < 2:
-            y_direction = 1
+            y_direction = Direction.RIGHT
             self._find_jumps(row, col, color, direction, y_direction, valid)
         elif 5 < col < 8:
-            y_direction = -1
+            y_direction = Direction.LEFT
             self._find_jumps(row, col, color, direction, y_direction, valid)
         else:
-            y_direction = 1
+            y_direction = Direction.RIGHT
             self._find_jumps(row, col, color, direction, y_direction, valid)
 
-            y_direction = -1
+            y_direction = Direction.LEFT
             self._find_jumps(row, col, color, direction, y_direction, valid)
 
         return valid
@@ -196,7 +206,7 @@ class Board:
             for item in self.marked_for_remove[(row, col)]:
                 self.board[item[0]][item[1]] = None
 
-        if (row == 0 or row == ROW - 1) and not piece.king:
+        if (row == 0 or row == 7) and not piece.king:
             piece.make_king()
 
             if piece.color == "white":
@@ -220,8 +230,8 @@ class Board:
         self.draw_squares(win)
         self.draw_valid_moves(win, self.valid_moves)
 
-        for row in range(ROW):
-            for col in range(COL):
+        for row in range(Dimensions.ROW):
+            for col in range(Dimensions.COL):
                 piece = self.board[row][col]
                 if piece is not None:
                     piece.draw(win)

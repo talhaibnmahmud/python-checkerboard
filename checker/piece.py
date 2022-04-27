@@ -3,14 +3,14 @@ from typing import ClassVar
 
 from pygame import draw, image, surface, transform
 
-from .constants import SQUARE_SIZE, ColorType
+from .constants import ColorType, Dimensions
 
 
 @dataclass
 class Piece:
     CROWN: ClassVar = transform.scale(
         image.load('assets/images/crown.png'),
-        (SQUARE_SIZE // 3, SQUARE_SIZE // 3)
+        (Dimensions.SQUARE_SIZE // 3, Dimensions.SQUARE_SIZE // 3)
     )
 
     row: int
@@ -31,8 +31,9 @@ class Piece:
         self.king = True
 
     def calculate_positions(self):
-        self.x = self.col * SQUARE_SIZE + (SQUARE_SIZE // 2)
-        self.y = self.row * SQUARE_SIZE + (SQUARE_SIZE // 2)
+        half_square = Dimensions.SQUARE_SIZE // 2
+        self.x = self.col * Dimensions.SQUARE_SIZE + half_square
+        self.y = self.row * Dimensions.SQUARE_SIZE + half_square
 
     def move(self, row: int, col: int):
         self.row = row
