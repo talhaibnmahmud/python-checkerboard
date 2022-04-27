@@ -1,4 +1,8 @@
 """Main entry point for the application."""
+import logging
+import logging.config
+import yaml
+
 import pygame
 
 from checker import Game
@@ -24,6 +28,13 @@ def get_row_col_from_mouse_pos(mouse_pos: tuple[float, float]) -> Coordinate:
 def main():
     """ Main Function"""
 
+    with open("logging.yml", "r") as f:
+        config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+
+    logger = logging.getLogger(__name__)
+
+    logger.info("Game started.")
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
@@ -44,6 +55,7 @@ def main():
         game.play()
 
     pygame.quit()
+    logger.info("Game closed.")
 
 
 if __name__ == '__main__':
