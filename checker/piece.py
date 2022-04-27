@@ -1,49 +1,33 @@
-import pygame
+from dataclasses import dataclass, field
+from typing import ClassVar
 
-from .constants import CROWN, SQUARE_SIZE, ColorType
+from pygame import draw, image, surface, transform
+
+from .constants import SQUARE_SIZE, ColorType
 
 
+@dataclass
 class Piece:
-    def __init__(self, color: ColorType, row: int, col: int):
-        self.color = color
-        self.row = row
-        self.col = col
-        self.king = False
+    CROWN: ClassVar = transform.scale(
+        image.load('assets/crown.png'), (SQUARE_SIZE // 3, SQUARE_SIZE // 3)
+    )
 
-        self.x: int = 0
-        self.y: int = 0
+    row: int
+    col: int
+    color: ColorType
 
+    x: int = field(default=0, init=False)
+    y: int = field(default=0, init=False)
+    king: bool = field(default=False, init=False)
+
+    def __post_init__(self):
         self.calculate_positions()
 
     def __str__(self) -> str:
         return f"{str(self.color)} -> ({str(self.row)}, {str(self.col)}) -> {str(self.king)}"
 
-    def __repr__(self) -> str:
-        return f"{str(self.color)} -> ({str(self.row)}, {str(self.col)}) -> {str(self.king)}"
-
-    def get_color(self) -> ColorType:
-        return self.color
-
-    def get_row(self) -> int:
-        return self.row
-
-    def get_col(self) -> int:
-        return self.col
-
-    def get_king(self):
-        return self.king
-
     def make_king(self):
         self.king = True
-
-    def set_row(self, row: int) -> None:
-        self.row = row
-
-    def set_col(self, col: int) -> None:
-        self.col = col
-
-    def set_color(self, color: ColorType) -> None:
-        self.color = color
 
     def calculate_positions(self):
         self.x = self.col * SQUARE_SIZE + (SQUARE_SIZE // 2)
@@ -54,11 +38,12 @@ class Piece:
         self.col = col
         self.calculate_positions()
 
-    def draw(self, win: pygame.Surface):
-        pygame.draw.circle(win, self.color, (self.x, self.y), 20)
+    def draw(self, win: surface.Surface):
+        draw.circle(win, self.color, (self.x, self.y), 20)
 
         if self.king:
             win.blit(
-                CROWN,
-                (self.x - CROWN.get_width() // 2, self.y - CROWN.get_height() // 2)
+                Piece.CROWN,
+                (self.x - Piece.CROWN.get_width() // 2,
+                 self.y - Piece.CROWN.get_height() // 2)
             )

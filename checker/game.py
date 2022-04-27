@@ -37,7 +37,7 @@ class Game:
         if piece is None:
             return
 
-        if piece.get_color() == self.current_player:
+        if piece.color == self.current_player:
             self.selected_piece = piece
             self.valid_moves = self.board.get_valid_moves(piece)
 

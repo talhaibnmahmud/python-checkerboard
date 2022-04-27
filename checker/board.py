@@ -53,9 +53,9 @@ class Board:
             for col in range(COL):
                 if col % 2 == ((row + 1) % 2):
                     if row < 3:
-                        self.board[row].append(Piece("white", row, col))
+                        self.board[row].append(Piece(row, col, "white"))
                     elif row > 4:
-                        self.board[row].append(Piece("black", row, col))
+                        self.board[row].append(Piece(row, col, "black"))
                     else:
                         self.board[row].append(None)
                 else:
@@ -68,7 +68,7 @@ class Board:
         valid_moves: list[Coordinate] = []
         self.marked_for_remove = {}
 
-        if piece.get_color() == "white":
+        if piece.color == "white":
             direction = 1
             moves = self.adjacent_move(piece, direction)
             valid_moves.extend(moves)
@@ -89,7 +89,7 @@ class Board:
 
     def adjacent_move(self, piece: Piece, direction: int):
         valid: list[Coordinate] = []
-        row, col = piece.get_row(), piece.get_col()
+        row, col = piece.row, piece.col
 
         if (direction == 1 and row == 7) or (direction == -1 and row == 0):
             return valid
@@ -187,9 +187,7 @@ class Board:
                 valid.extend(r_jumps)
 
     def move_piece(self, piece: Piece, row: int, col: int):
-        self.board[piece.get_row()][piece.get_col()] = self.board[row][col]
-        piece.set_row(row)
-        piece.set_col(col)
+        self.board[piece.row][piece.col] = self.board[row][col]
         self.board[row][col] = piece
 
         piece.move(row, col)
@@ -198,16 +196,16 @@ class Board:
             for item in self.marked_for_remove[(row, col)]:
                 self.board[item[0]][item[1]] = None
 
-        if (row == 0 or row == ROW - 1) and not piece.get_king():
+        if (row == 0 or row == ROW - 1) and not piece.king:
             piece.make_king()
 
-            if piece.get_color() == "white":
-                self.white_kings += 1 if piece.get_king() else 0
+            if piece.color == "white":
+                self.white_kings += 1 if piece.king else 0
             else:
-                self.black_kings += 1 if piece.get_king() else 0
+                self.black_kings += 1 if piece.king else 0
 
     def remove_piece(self, piece: Piece):
-        row, col = piece.get_row(), piece.get_col()
+        row, col = piece.row, piece.col
         self.board[row][col] = None
 
     def check_winner(self):
