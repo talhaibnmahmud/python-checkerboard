@@ -1,4 +1,6 @@
 """ Game Class """
+import logging
+
 import pygame
 
 from .board import Board
@@ -15,6 +17,9 @@ class Game:
         self.player2 = "black"
 
         self._reset()
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.info('Game is successfully initialized')
 
     def play(self):
         """ Play the game """
